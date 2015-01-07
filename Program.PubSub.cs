@@ -20,7 +20,6 @@ namespace ZeroMQ.Test
 				// say here were some arguments...
 				args = new string[] { "World" };
 			}
-			Console.WriteLine(Frontend);
 
 			// Setup the ZContext
 			context = ZContext.Create();
