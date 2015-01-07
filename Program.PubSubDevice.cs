@@ -14,6 +14,8 @@ namespace ZeroMQ.Test
 	{
 		public static void PubSubDevice(IDictionary<string, string> dict, string[] args)
 		{
+			int who = dict.ContainsKey("--server") ? 1 : (dict.ContainsKey("--client") ? 2 : 0);
+
 			if (args == null || args.Length < 1)
 			{
 				// say here were some arguments...
@@ -26,9 +28,9 @@ namespace ZeroMQ.Test
 			var cancellor0 = new CancellationTokenSource();
 			PubSubDevice serverDevice = null;
 
-			if (!dict.ContainsKey("--server") || dict["--server"] == "+")
+			if (who == 0 || who == 1)
 			{
-				if (!dict.ContainsKey("--server") || dict["--server"] == "++")
+				if (who == 0 || dict["--server"] == "++")
 				{
 					serverDevice = new PubSubDevice(context, Frontend, Backend);
 					serverDevice.Start();
@@ -43,11 +45,14 @@ namespace ZeroMQ.Test
 				}
 			}
 
-			foreach (string arg in args)
+			if (who == 0 || who == 2)
 			{
-				var clientThread = new Thread(() => PubSubDevice_Client(cancellor0.Token, arg));
-				clientThread.Start();
-				clientThread.Join(64);
+				foreach (string arg in args)
+				{
+					var clientThread = new Thread(() => PubSubDevice_Client(cancellor0.Token, arg));
+					clientThread.Start();
+					clientThread.Join(64);
+				}
 			}
 
 			Console.CancelKeyPress += (object sender, ConsoleCancelEventArgs e) =>
@@ -116,27 +121,13 @@ namespace ZeroMQ.Test
 
 				socket.SubscribeAll();
 
-				var poller = ZPollItem.Create(socket, (ZSocket _socket, out ZMessage message, out ZError _error) =>
-				{
-					while (null == (message = _socket.ReceiveMessage(ZSocketFlags.DontWait, out _error)))
-					{
-						if (_error == ZError.EAGAIN)
-						{
-							_error = ZError.None;
-							Thread.Sleep(1);
-
-							continue;
-						}
-						throw new ZException(_error);
-					}
-					return true;
-				});
+				ZError error;
+				ZMessage message;
+				var poller = ZPollItem.CreateReceiver(socket);
 
 				while (!cancellus.IsCancellationRequested)
 				{
-					ZError error;
-					ZMessage message;
-					if (!poller.TryPollIn(out message, out error, TimeSpan.FromMilliseconds(512)))
+					if (!poller.PollIn(out message, out error, TimeSpan.FromMilliseconds(512)))
 					{
 						if (error == ZError.EAGAIN)
 						{
@@ -148,9 +139,12 @@ namespace ZeroMQ.Test
 						throw new ZException(error);
 					}
 
-					Console.WriteLine(
-						string.Format("{0} received {1}", name, message[0].ReadString()
-					));
+					using (message)
+					{
+						Console.WriteLine(
+							string.Format("{0} received {1}", name, message[0].ReadString()
+						));
+					}
 				}
 
 				socket.Disconnect(Backend);

@@ -91,10 +91,11 @@ namespace ZeroMQ.Test
 			{
 				socket.Connect(Backend);
 
+				ZError error;
+				ZMessage request;
+
 				while (!cancellus.IsCancellationRequested)
 				{
-					ZError error;
-					ZMessage request;
 					if (null == (request = socket.ReceiveMessage(ZSocketFlags.DontWait, out error)))
 					{
 						if (error == ZError.EAGAIN)
