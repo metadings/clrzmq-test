@@ -28,7 +28,7 @@ namespace ZeroMQ.Test
 
 			if (who == 0 || who == 1)
 			{
-				var serverThread = new Thread(() => PubSub_Server(cancellor0.Token));
+				var serverThread = new Thread(() => PubSub_Server(cancellor0.Token, args));
 				serverThread.Start();
 				serverThread.Join(64);
 			}
@@ -65,13 +65,14 @@ namespace ZeroMQ.Test
 
 		}
 
-		static void PubSub_Server(CancellationToken cancellus)
+		static void PubSub_Server(CancellationToken cancellus, string[] names)
 		{
 			using (var socket = ZSocket.Create(context, ZSocketType.PUB))
 			{
 				socket.Bind(Frontend);
 
 				var now = DateTime.Now;
+				var nameI = -1;
 
 				while (!cancellus.IsCancellationRequested)
 				{
@@ -81,10 +82,14 @@ namespace ZeroMQ.Test
 						continue;
 					}
 					now = DateTime.Now;
+					++nameI;
+					if (nameI == names.Length) {
+						nameI = 0;
+					}
 
 					using (var response = new ZMessage())
 					{
-						response.Add(ZFrame.Create(DateTime.Now.ToString("G")));
+						response.Add(ZFrame.Create(DateTime.Now.ToString("G") + " " + names[nameI]));
 
 						socket.SendMessage(response);
 					}
