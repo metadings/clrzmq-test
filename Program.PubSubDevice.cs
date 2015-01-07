@@ -127,7 +127,7 @@ namespace ZeroMQ.Test
 
 				while (!cancellus.IsCancellationRequested)
 				{
-					if (!poller.PollIn(out message, out error, TimeSpan.FromMilliseconds(512)))
+					if (!poller.PollIn(out message, out error, TimeSpan.FromMilliseconds(64)))
 					{
 						if (error == ZError.EAGAIN)
 						{
@@ -142,8 +142,8 @@ namespace ZeroMQ.Test
 					using (message)
 					{
 						Console.WriteLine(
-							string.Format("{0} received {1}", name, message[0].ReadString()
-						));
+							string.Format("{0} received {1}", name, message[0].ReadString())
+						);
 					}
 				}
 

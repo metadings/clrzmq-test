@@ -108,7 +108,7 @@ namespace ZeroMQ.Test
 
 				while (!cancellus.IsCancellationRequested)
 				{
-					if (!poller.PollIn(out message, out error, TimeSpan.FromMilliseconds(512)))
+					if (!poller.PollIn(out message, out error, TimeSpan.FromMilliseconds(64)))
 					{
 						if (error == ZError.EAGAIN)
 						{
