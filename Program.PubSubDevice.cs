@@ -24,12 +24,13 @@ namespace ZeroMQ.Test
 			context = ZContext.Create();
 
 			var cancellor0 = new CancellationTokenSource();
+			PubSubDevice serverDevice = null;
 
 			if (!dict.ContainsKey("--server") || dict["--server"] == "+")
 			{
 				if (!dict.ContainsKey("--server") || dict["--server"] == "++")
 				{
-					var serverDevice = new PubSubDevice(context, Frontend, Backend);
+					serverDevice = new PubSubDevice(context, Frontend, Backend);
 					serverDevice.Start();
 					// serverDevice.Join();
 				}
@@ -57,6 +58,11 @@ namespace ZeroMQ.Test
 				{
 					// Cancel the Server
 					cancellor0.Cancel();
+				}
+
+				if (serverDevice != null)
+				{
+					serverDevice.Stop();
 				}
 
 				// we could have done here context.Terminate()
