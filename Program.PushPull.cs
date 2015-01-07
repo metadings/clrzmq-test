@@ -12,7 +12,7 @@ namespace ZeroMQ.Test
 	{
 		public static void PushPull(IDictionary<string, string> dict, string[] args)
 		{
-			int await = dict.ContainsKey("--server") ? 1 : (dict.ContainsKey("--client") ? 2 : 0);
+			int who = dict.ContainsKey("--server") ? 1 : (dict.ContainsKey("--client") ? 2 : 0);
 
 			if (args == null || args.Length < 1)
 			{
@@ -25,7 +25,7 @@ namespace ZeroMQ.Test
 
 			CancellationTokenSource cancellor0 = null;
 
-			if (await == 0 || await == 1)
+			if (who == 0 || who == 1)
 			{
 				// Create the "Server" cancellor and thread
 				cancellor0 = new CancellationTokenSource();
@@ -35,7 +35,7 @@ namespace ZeroMQ.Test
 			}
 
 
-			if (await == 1)
+			if (who == 1)
 			{
 				Console.CancelKeyPress += (object sender, ConsoleCancelEventArgs e) =>
 				{
@@ -49,7 +49,7 @@ namespace ZeroMQ.Test
 					Thread.Sleep(64);
 				}
 			}
-			else if (await == 0 || await == 2)
+			else if (who == 0 || who == 2)
 			{
 				// foreach arg we are the Client, asking the Server
 				foreach (string arg in args)
