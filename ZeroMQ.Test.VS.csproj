@@ -41,7 +41,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.Has.cs" />
     <Compile Include="Program.PubSubDevice.cs" />
     <Compile Include="Program.PubSub.cs" />
     <Compile Include="Program.PushPullDevice.cs" />
