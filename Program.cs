@@ -17,6 +17,11 @@ namespace ZeroMQ.Test
 
 		public static void Has(IDictionary<string, string> dict, string[] args)
 		{
+			if (args == null || args.Length == 0)
+			{
+				args = new string[] { "ipc", "pgm", "tipc", "norm", "curve", "gssapi" };
+			}
+
 			foreach (string arg in args)
 				Console.WriteLine("{0}: {1}", arg, ZContext.Has(arg));
 		}
