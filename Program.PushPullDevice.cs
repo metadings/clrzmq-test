@@ -49,6 +49,18 @@ namespace ZeroMQ.Test
 				Console.CancelKeyPress += (object sender, ConsoleCancelEventArgs e) =>
 				{
 					Console.WriteLine("Cancelled...");
+
+					if (cancellor0 != null)
+					{
+						// Cancel the Server
+						cancellor0.Cancel();
+					}
+
+					if (pullDealer != null)
+					{
+						// Cancel the Device
+						pullDealer.Stop();
+					}
 				};
 
 				Console.WriteLine("Running...");
@@ -58,7 +70,8 @@ namespace ZeroMQ.Test
 					Thread.Sleep(64);
 				}
 			}
-			else if (who == 0 || who == 2)
+
+			if (who == 0 || who == 2)
 			{
 				// foreach arg we are the Client, asking the Server
 				foreach (string arg in args)

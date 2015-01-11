@@ -39,8 +39,8 @@ namespace ZeroMQ.Test
 
 				for (int i = 0; i < 4; ++i)
 				{
-					var serverThread = new Thread(RouterDealer_Server);
-					serverThread.Start(cancellor0.Token);
+					var serverThread = new Thread(() => RouterDealer_Server(cancellor0.Token, args[0]));
+					serverThread.Start();
 					serverThread.Join(64);
 				}
 			}
@@ -83,10 +83,8 @@ namespace ZeroMQ.Test
 
 		}
 
-		static void RouterDealer_Server(object cancelluS)
+		static void RouterDealer_Server(CancellationToken cancellus, string name)
 		{
-			var cancellus = (CancellationToken)cancelluS;
-
 			using (var socket = ZSocket.Create(context, ZSocketType.REP))
 			{
 				socket.Connect(Backend);
@@ -113,7 +111,7 @@ namespace ZeroMQ.Test
 					using (request)
 					using (var response = new ZMessage())
 					{
-						response.Add(ZFrame.Create("Hello " + request[0].ReadString()));
+						response.Add(ZFrame.Create(name + " says hello to " + request[0].ReadString()));
 						socket.SendMessage(response);
 					}
 				}
