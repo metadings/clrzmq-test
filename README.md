@@ -5,7 +5,8 @@ Open this project in VC# Express on Windows, or in MonoDevelop on Linux.
 
 Please setup the ZeroMQ assembly binding, either by adding the project, or by adding the reference dll.
 
-ZeroMQ is built in AnyCPU and running on both Windows (VC2010) and Linux (GNU C 4.8.2), x86 and amd64.
+ZeroMQ is built in AnyCPU and running on both Windows (VC2010) and Linux (GNU C 4.8.2), x86 and amd64 running
+through static readonly Delegate Field's.
 
 You can run this project by command line `./ZeroMQ.Test.exe`
 
