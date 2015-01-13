@@ -36,10 +36,10 @@ namespace ZeroMQ.Test
 				// Create the "Server" cancellor and threads
 				cancellor0 = new CancellationTokenSource();
 
-				for (int i = 0; i < 4; ++i)
+				foreach (string arg in args)
 				{
-					var serverThread = new Thread(PushPullDevice_Server);
-					serverThread.Start(cancellor0.Token);
+					var serverThread = new Thread(() => PushPullDevice_Server(cancellor0.Token, arg));
+					serverThread.Start();
 					serverThread.Join(64);
 				}
 			}
@@ -98,10 +98,8 @@ namespace ZeroMQ.Test
 
 		}
 
-		static void PushPullDevice_Server(object cancelluS)
+		static void PushPullDevice_Server(CancellationToken cancellus, string name)
 		{
-			var cancellus = (CancellationToken)cancelluS;
-
 			using (var socket = ZSocket.Create(context, ZSocketType.PULL))
 			{
 				socket.Connect(Backend);
@@ -129,7 +127,7 @@ namespace ZeroMQ.Test
 						if (frame.Length == 0) continue;
 
 						string strg = frame.ReadString();
-						Console.WriteLine("{0} said hello!", strg);
+						Console.WriteLine("{0} said hello to {1}!", strg, name);
 					}
 
 					request = null;
