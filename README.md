@@ -34,24 +34,24 @@ ZeroMQ Projects
 StreamDealer
 -
 
-	./ZeroMQ.Test.exe --frontend=tcp://192.168.1.1:8080 StreamDealer World Edward Ulrich
+	./ZeroMQ.Test.exe --frontend=tcp://192.168.1.10:8080 StreamDealer World Edward Ulrich
 
 which results in 
 
 	Running...
-	Please start your browser on tcp://192.168.123.10:8080 ...
+	Please start your browser on tcp://192.168.1.10:8080 ...
 
 Have a look into your browser!
 	
 PubSubDevice
 -
-On one machine (`192.168.1.20`)
+On one machine (`192.168.1.10`)
 
-	./ZeroMQ.Test.exe --frontend=tcp://192.168.1.20:2772 --backend=tcp://192.168.1.20:3663 --server=++ PubSubDevice World Edward Ulrich
+	./ZeroMQ.Test.exe --frontend=tcp://192.168.1.10:2772 --backend=tcp://192.168.1.10:3663 --server=++ PubSubDevice World Edward Ulrich
 	
-and on another machine (`192.168.1.22`)
+and on another machine (`192.168.1.12`, beware the `10` and `12`)
 
-	./ZeroMQ.Test.exe --backend=tcp://192.168.1.1:3663 --client=+ PubSubDevice HI HA HO
+	./ZeroMQ.Test.exe --backend=tcp://192.168.1.10:3663 --client=+ PubSubDevice HI HA HO
 
 This results in
 
