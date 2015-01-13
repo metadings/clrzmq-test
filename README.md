@@ -3,8 +3,7 @@ Examples for [github.com/zeromq/clrzmq4](http://github.com/zeromq/clrzmq4)
 
 Open this project in VC# Express on Windows, or in MonoDevelop on Linux.
 
-Please setup the ZeroMQ assembly binding, either by adding the project ZeroMQ, or by adding the reference ZeroMQ.dll.
-
+Please setup the ZeroMQ assembly binding, either by adding the project ZeroMQ, or by adding the reference ZeroMQ.dll. 
 ZeroMQ is built in AnyCPU and running on both Windows and Linux, x86 and amd64.
 
 You can run this project by command line `./ZeroMQ.Test.exe`
