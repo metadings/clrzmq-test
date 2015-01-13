@@ -5,10 +5,9 @@ Open this project in VC# Express on Windows, or in MonoDevelop on Linux.
 
 Please setup the ZeroMQ assembly binding, by either adding the project ZeroMQ, or by adding the reference ZeroMQ.dll.
 
-ZeroMQ is built in AnyCPU and running on both Windows and Linux, x86 and amd64. Actually I need some developers 
-and testers for other platforms and CVersion's.
+ZeroMQ is built in AnyCPU and running on both Windows and Linux, x86 and amd64.
 
-You can run this project by command line: ./ZeroMQ.Test.exe
+You can run this project by command line `./ZeroMQ.Test.exe`
 
 	Usage: ./ZeroMQ.Test.exe [--option=+] [--option=tcp://192.168.1.1:8080] <command> World Edward Ulrich
 
@@ -32,7 +31,7 @@ You can run this project by command line: ./ZeroMQ.Test.exe
 Cool Projects 
 ---
 
-are the StreamDealer,
+StreamDealer
 
 	./ZeroMQ.Test.exe --frontend=tcp://192.168.1.1:8080 StreamDealer World Edward Ulrich
 
@@ -45,7 +44,7 @@ You should have a look into the browser now...
 
 --
 	
-And also the PubSubDevice (which is now like RouterDealer), on one machine
+PubSubDevice, on one machine
 
 	./ZeroMQ.Test.exe --frontend=tcp://192.168.1.1:2772 --backend=tcp://192.168.1.1:3663 --server=++ PubSubDevice World Edward Ulrich
 	
