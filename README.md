@@ -13,20 +13,20 @@ You can run this project by command line `./ZeroMQ.Test.exe`
 
 	Available [option]s:
 
-	  --Frontend
 	  --Backend
+	  --Frontend
 
 	Available <command>s:
 
-	    PushPullDevice
 	    Has
-	    Version
-	    RouterDealer
-	    RequestReply
-	    PushPull
-	    PubSubDevice
 	    PubSub
+	    PubSubDevice
+	    PushPull
+	    PushPullDevice
+	    RequestReply
+	    RouterDealer
 	    StreamDealer
+	    Version
 
 ZeroMQ Projects 
 ---
