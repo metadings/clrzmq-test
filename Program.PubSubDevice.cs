@@ -173,11 +173,12 @@ namespace ZeroMQ.Test
 
 				ZError error;
 				ZMessage message;
-				var poller = ZPollItem.CreateReceiver(socket);
+				// var poller = ZPollItem.CreateReceiver(socket);
 
 				while (!cancellus.IsCancellationRequested)
 				{
-					if (!poller.PollIn(out message, out error, TimeSpan.FromMilliseconds(1000)))
+					// if (!poller.PollIn(out message, out error, TimeSpan.FromMilliseconds(1000)))
+					if (null == (message = socket.ReceiveMessage(ZSocketFlags.DontWait, out error)))
 					{
 						if (error == ZError.EAGAIN)
 						{
