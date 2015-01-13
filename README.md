@@ -32,6 +32,7 @@ Cool Projects
 ---
 
 StreamDealer
+--
 
 	./ZeroMQ.Test.exe --frontend=tcp://192.168.1.1:8080 StreamDealer World Edward Ulrich
 
@@ -44,7 +45,9 @@ You should have a look into the browser now...
 
 --
 	
-PubSubDevice, on one machine
+PubSubDevice
+--
+On one machine
 
 	./ZeroMQ.Test.exe --frontend=tcp://192.168.1.1:2772 --backend=tcp://192.168.1.1:3663 --server=++ PubSubDevice World Edward Ulrich
 	
