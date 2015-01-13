@@ -51,7 +51,7 @@ First machine (`192.168.1.10`)
 	
 Second machine (`192.168.1.12`, beware the `10` and `12`)
 
-	./ZeroMQ.Test.exe --backend=tcp://192.168.1.10:3663 --client=+ PubSubDevice HA HE HI HO HU
+	./ZeroMQ.Test.exe --backend=tcp://192.168.1.10:3663 --client=+ RouterDealer HA HE HI HO HU
 	
 Results:
 
