@@ -107,6 +107,13 @@ Content-Type: text/html
 	<h3>Hello, I am " + name + @"!</h3>
 	<div>Your Request:</div>
 	<pre>" + request[0].ReadString() + @"</pre>
+
+	<script type=""text/javascript"">
+		(function () {
+			setTimeout(function () { location.reload(true); }, 1000);
+		}());
+	</script>
+
 </body>
 </html>"));
 						socket.SendMessage(response);
