@@ -28,7 +28,7 @@ You can run this project by command line `./ZeroMQ.Test.exe`
 	    PubSub
 	    StreamDealer
 
-Cool Projects 
+ZeroMQ Projects 
 ---
 
 StreamDealer
@@ -40,8 +40,6 @@ which results in
 
 	Running...
 	Please start your browser on tcp://192.168.123.10:8080 ...
-	
-You should have a look into the browser now...
 
 --
 	
@@ -55,7 +53,7 @@ and on another machine
 
 	./ZeroMQ.Test.exe --backend=tcp://192.168.1.1:3663 --client=+ PubSubDevice HI HA HO
 
-that actually results in
+This results in
 
 	Running...
 	HA received 13.01.2015 07:07:52 World
