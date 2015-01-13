@@ -28,7 +28,7 @@ namespace ZeroMQ.Test
 			context = ZContext.Create();
 
 			RouterDealerDevice routerDealer = null;
-			var monitors = new List<ZMonitor>();
+			var monitors = new List<Thread>();
 			CancellationTokenSource cancellor0 = null;
 
 			if (who == 0 || who == 1)
@@ -47,12 +47,12 @@ namespace ZeroMQ.Test
 					Thread monitorThread = null;
 
 					if (doMonitor) {
-						var monitor = ZMonitor.Create(context, "inproc://RouterDealer-Server" + j);
-						monitorThread = new Thread(() => { 
+						monitorThread = new Thread(() => {
+							var monitor = ZMonitor.Create(context, "inproc://RouterDealer-Server" + j);
 							monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
 							monitor.Run(cancellor0.Token); 
 						});
-						monitors.Add(monitor);
+						monitors.Add(monitorThread);
 					}
 
 					var serverThread = new Thread(() => RouterDealer_Server(cancellor0.Token, j, arg, doMonitor));
@@ -69,7 +69,6 @@ namespace ZeroMQ.Test
 			
 			if (who == 0 || who == 2)
 			{
-
 				// foreach arg we are the Client, asking the Server
 				int i = -1;
 				foreach (string arg in args)
@@ -79,21 +78,16 @@ namespace ZeroMQ.Test
 
 					if (doMonitor)
 					{
-						var monitor = ZMonitor.Create(context, "inproc://RouterDealer-Client" + j);
 						monitorThread = new Thread(() =>
 						{
+							var monitor = ZMonitor.Create(context, "inproc://RouterDealer-Client" + j);
 							monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
 							monitor.Run(cancellor0.Token);
 						});
-						monitors.Add(monitor);
+						monitors.Add(monitorThread);
 					}
 
-					Console.WriteLine(RouterDealer_Client(j, arg, doMonitor));
-
-					if (doMonitor)
-					{
-						monitorThread.Start();
-					}
+					Console.WriteLine(RouterDealer_Client(arg, () => { if (doMonitor) monitorThread.Start(); }));
 				}
 			}
 
@@ -180,15 +174,15 @@ namespace ZeroMQ.Test
 			}
 		}
 
-		static string RouterDealer_Client(int j, string name, bool doMonitor)
+		static string RouterDealer_Client(string name, Action monitor)
 		{
 			string output = null;
 
 			using (var socket = ZSocket.Create(context, ZSocketType.REQ))
 			{
-				if (doMonitor)
+				if (monitor != null)
 				{
-					socket.Monitor("inproc://RouterDealer-Client" + j);
+					monitor();
 				}
 
 				socket.Connect(Frontend);
