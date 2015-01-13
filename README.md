@@ -1,7 +1,7 @@
 # ZeroMQ CLR namespace
 Examples for [github.com/zeromq/clrzmq4](http://github.com/zeromq/clrzmq4)
 
-Open this project in VC# Express on Windows, or in MonoDevelop on Linux.
+Open this project in Visual C# on Windows or in MonoDevelop on Linux.
 
 Please setup the ZeroMQ assembly binding, either by adding the project, or by adding the reference dll.
 
