@@ -26,19 +26,21 @@ namespace ZeroMQ.Test
 			// Setup the ZContext
 			context = ZContext.Create();
 
-			PushPullDevice pullDealer = null;
 			CancellationTokenSource cancellor0 = null;
+
+			PushPullDevice pullDealer = null;
+
 			var monitors = new List<Thread>();
-			CancellationTokenSource cancellor1 = doMonitor ? new CancellationTokenSource() : null;
+			var cancellor1 = doMonitor ? new CancellationTokenSource() : null;
 
 			if (who == 0 || who == 1)
 			{
-				// Setup the Dealer
-				pullDealer = new PushPullDevice(context, Frontend, Backend);
-				pullDealer.Start();
-
 				// Create the "Server" cancellor and threads
 				cancellor0 = new CancellationTokenSource();
+
+				// Setup the Dealer
+				pullDealer = new PushPullDevice(context, Frontend, Backend);
+				pullDealer.Start(cancellor0).Join(64);
 
 				int i = -1;
 				foreach (string arg in args)

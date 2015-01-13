@@ -28,17 +28,18 @@ namespace ZeroMQ.Test
 			context = ZContext.Create();
 
 			var cancellor0 = new CancellationTokenSource();
+
 			PubSubDevice serverDevice = null;
+
 			var monitors = new List<Thread>();
-			CancellationTokenSource cancellor1 = doMonitor ? new CancellationTokenSource() : null;
+			var cancellor1 = doMonitor ? new CancellationTokenSource() : null;
 
 			if (who == 0 || who == 1)
 			{
 				if (who == 0 || dict["--server"] == "++")
 				{
 					serverDevice = new PubSubDevice(context, Frontend, Backend);
-					serverDevice.Start();
-					// serverDevice.Join();
+					serverDevice.Start(cancellor0).Join(64);
 				}
 
 				int i = -1;

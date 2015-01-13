@@ -34,12 +34,11 @@ namespace ZeroMQ.Test
 
 			if (who == 0 || who == 1)
 			{
-				routerDealer = new RouterDealerDevice(context, Frontend, Backend);
-				routerDealer.Start();
-				routerDealer.Join(TimeSpan.FromMilliseconds(64));
-
 				// Create the "Server" cancellor and thread
 				cancellor0 = new CancellationTokenSource();
+
+				routerDealer = new RouterDealerDevice(context, Frontend, Backend);
+				routerDealer.Start(cancellor0).Join(64);
 
 				int i = -1;
 				foreach (string arg in args)

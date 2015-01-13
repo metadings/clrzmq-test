@@ -27,12 +27,12 @@ namespace ZeroMQ.Test
 			// Setup the ZContext
 			context = ZContext.Create();
 
-			var streamDealer = new StreamDealerDevice(context, Frontend, Backend);
-			streamDealer.Start();
-			streamDealer.Join(TimeSpan.FromMilliseconds(64));
-
-			// Create the "Server" cancellor and thread
 			var cancellor0 = new CancellationTokenSource();
+
+			var streamDealer = new StreamDealerDevice(context, Frontend, Backend);
+			streamDealer.Start(cancellor0);
+			streamDealer.Join(64);
+
 			var monitors = new List<Thread>();
 			CancellationTokenSource cancellor1 = doMonitor ? new CancellationTokenSource() : null;
 
