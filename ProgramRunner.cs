@@ -27,20 +27,25 @@ namespace ZeroMQ.Test
 				{
 					if (arg.StartsWith("--"))
 					{
+						leaveOut++;
+
 						int iOfEquals = arg.IndexOf('=');
+						string key, value;
 						if (-1 < iOfEquals)
 						{
-							leaveOut++;
+							key = arg.Substring(0, iOfEquals);
+							value = arg.Substring(iOfEquals + 1);
+						}
+						else {
+							key = arg.Substring(0);
+							value = null;
+						}
+						dict.Add(key, value);
 
-							string key = arg.Substring(0, iOfEquals);
-							string value = arg.Substring(iOfEquals + 1);
-							dict.Add(key, value);
-
-							FieldInfo keyField = fields.Where(field => string.Equals(field.Name, key.Substring(2), StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
-							if (keyField != null)
-							{
-								keyField.SetValue(null, value);
-							}
+						FieldInfo keyField = fields.Where(field => string.Equals(field.Name, key.Substring(2), StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+						if (keyField != null)
+						{
+							keyField.SetValue(null, value);
 						}
 					}
 				}
