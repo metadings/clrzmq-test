@@ -74,10 +74,11 @@ namespace ZeroMQ.Test
 
 				ZError error;
 				ZMessage request = null;
+				var poller = ZPollItem.CreateReceiver(socket);
 
 				while (!cancellus.IsCancellationRequested)
 				{
-					if (!socket.ReceiveMessage(ZSocketFlags.DontWait, ref request, out error))
+					if (!poller.PollIn(out request, out error, TimeSpan.FromMilliseconds(64)))
 					{
 						if (error == ZError.EAGAIN)
 						{
