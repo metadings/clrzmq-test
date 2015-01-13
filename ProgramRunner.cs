@@ -17,7 +17,7 @@ namespace ZeroMQ.Test
 
 
 			// REAL
-			var fields = typeof(Program).GetFields(BindingFlags.Public | BindingFlags.Static);
+			var fields = typeof(Program).GetFields(BindingFlags.Public | BindingFlags.Static).OrderBy(field => field.Name);
 
 			int leaveOut = 0;
 			var dict = new Dictionary<string, string>();
@@ -49,7 +49,7 @@ namespace ZeroMQ.Test
 			int returnMain = 0;
 			string command = (args == null || args.Length == 0) ? "help" : args[0 + leaveOut].ToLower();
 
-			var methods = typeof(Program).GetMethods(BindingFlags.Public | BindingFlags.Static);
+			var methods = typeof(Program).GetMethods(BindingFlags.Public | BindingFlags.Static).OrderBy(method => method.Name);
 			if (command != "help")
 			{
 
