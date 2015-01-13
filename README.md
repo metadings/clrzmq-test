@@ -29,7 +29,10 @@ You can run this project by command line: ./ZeroMQ.Test.exe
 			PubSub
 			StreamDealer
 
-Cool projects are the StreamDealer,
+Cool Projects 
+---
+
+are the StreamDealer,
 
 	./ZeroMQ.Test.exe --frontend=tcp://192.168.1.1:8080 StreamDealer World Edward Ulrich
 
@@ -37,9 +40,12 @@ which results in
 
 	Running...
 	Please start your browser on tcp://192.168.123.10:8080 ...
-	Cancelled...
+	
+You should have a look into the browser now...
 
-and also the PubSubDevice (which is now like RouterDealer), on one machine
+--
+	
+And also the PubSubDevice (which is now like RouterDealer), on one machine
 
 	./ZeroMQ.Test.exe --frontend=tcp://192.168.1.1:2772 --backend=tcp://192.168.1.1:3663 --server=++ PubSubDevice World Edward Ulrich
 	
