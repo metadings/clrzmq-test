@@ -6,6 +6,7 @@ using System.Threading;
 
 using ZeroMQ;
 using ZeroMQ.Devices;
+using ZeroMQ.Monitoring;
 
 namespace ZeroMQ.Test
 {
@@ -14,6 +15,7 @@ namespace ZeroMQ.Test
 		public static void PushPullDevice(IDictionary<string, string> dict, string[] args)
 		{
 			int who = dict.ContainsKey("--server") ? 1 : (dict.ContainsKey("--client") ? 2 : 0);
+			bool doMonitor = dict.ContainsKey("--monitor");
 
 			if (args == null || args.Length < 1)
 			{
@@ -26,6 +28,8 @@ namespace ZeroMQ.Test
 
 			PushPullDevice pullDealer = null;
 			CancellationTokenSource cancellor0 = null;
+			var monitors = new List<Thread>();
+			CancellationTokenSource cancellor1 = doMonitor ? new CancellationTokenSource() : null;
 
 			if (who == 0 || who == 1)
 			{
@@ -36,11 +40,26 @@ namespace ZeroMQ.Test
 				// Create the "Server" cancellor and threads
 				cancellor0 = new CancellationTokenSource();
 
+				int i = -1;
 				foreach (string arg in args)
 				{
-					var serverThread = new Thread(() => PushPullDevice_Server(cancellor0.Token, arg));
+					int j = ++i;
+
+					var serverThread = new Thread(() => PushPullDevice_Server(cancellor0.Token, j, arg, doMonitor));
 					serverThread.Start();
 					serverThread.Join(64);
+
+					if (doMonitor) {
+						Thread monitorThread = new Thread(() => {
+							var monitor = ZMonitor.Create(context, "inproc://RouterDealer-Server" + j);
+							monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
+							monitor.Run(cancellor1.Token); 
+						});
+						monitors.Add(monitorThread);
+
+						monitorThread.Start();
+						monitorThread.Join(64);
+					}
 				}
 			}
 
@@ -49,6 +68,12 @@ namespace ZeroMQ.Test
 				Console.CancelKeyPress += (object sender, ConsoleCancelEventArgs e) =>
 				{
 					Console.WriteLine("Cancelled...");
+
+					if (cancellor1 != null)
+					{
+						// Cancel the Server
+						cancellor1.Cancel();
+					}
 
 					if (cancellor0 != null)
 					{
@@ -74,12 +99,35 @@ namespace ZeroMQ.Test
 			if (who == 0 || who == 2)
 			{
 				// foreach arg we are the Client, asking the Server
+				int i = -1;
 				foreach (string arg in args)
 				{
-					PushPullDevice_Client(arg);
+					int j = ++i;
+
+					if (doMonitor) {
+						Thread monitorThread = new Thread(() => {
+							var monitor = ZMonitor.Create(context, "inproc://RouterDealer-Client" + j);
+							monitor.AllEvents += (sender, e) => {
+								Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event));
+							};
+							monitor.Run(cancellor1.Token);
+						});
+						monitors.Add(monitorThread);
+
+						PushPullDevice_Client(j, arg, () => { monitorThread.Start(); });
+					} 
+					else {
+						PushPullDevice_Client(j, arg, null);
+					}
 				}
 
-				Thread.Sleep(1000);
+				Thread.Sleep(250);
+			}
+
+			if (cancellor1 != null)
+			{
+				// Cancel the Server
+				cancellor1.Cancel();
 			}
 
 			if (cancellor0 != null)
@@ -98,10 +146,15 @@ namespace ZeroMQ.Test
 
 		}
 
-		static void PushPullDevice_Server(CancellationToken cancellus, string name)
+		static void PushPullDevice_Server(CancellationToken cancellus, int i, string name, bool doMonitor)
 		{
 			using (var socket = ZSocket.Create(context, ZSocketType.PULL))
 			{
+				if (doMonitor)
+				{
+					socket.Monitor("inproc://RouterDealer-Server" + i);
+				}
+
 				socket.Connect(Backend);
 
 				ZError error;
@@ -135,10 +188,16 @@ namespace ZeroMQ.Test
 			}
 		}
 
-		static void PushPullDevice_Client(string name)
+		static void PushPullDevice_Client(int j, string name, Action monitor)
 		{
 			using (var socket = ZSocket.Create(context, ZSocketType.PUSH))
 			{
+				if (monitor != null)
+				{
+					socket.Monitor("inproc://RouterDealer-Client" + j);
+					monitor();
+				}
+
 				socket.Connect(Frontend);
 
 				using (var request = new ZMessage())

@@ -28,8 +28,9 @@ namespace ZeroMQ.Test
 			context = ZContext.Create();
 
 			RouterDealerDevice routerDealer = null;
-			var monitors = new List<Thread>();
 			CancellationTokenSource cancellor0 = null;
+			var monitors = new List<Thread>();
+			CancellationTokenSource cancellor1 = doMonitor ? new CancellationTokenSource() : null;
 
 			if (who == 0 || who == 1)
 			{
@@ -44,23 +45,19 @@ namespace ZeroMQ.Test
 				foreach (string arg in args)
 				{
 					int j = ++i;
-					Thread monitorThread = null;
-
-					if (doMonitor) {
-						monitorThread = new Thread(() => {
-							var monitor = ZMonitor.Create(context, "inproc://RouterDealer-Server" + j);
-							monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
-							monitor.Run(cancellor0.Token); 
-						});
-						monitors.Add(monitorThread);
-					}
 
 					var serverThread = new Thread(() => RouterDealer_Server(cancellor0.Token, j, arg, doMonitor));
 					serverThread.Start();
 					serverThread.Join(64);
 
-					if (doMonitor)
-					{
+					if (doMonitor) {
+						Thread monitorThread = new Thread(() => {
+							var monitor = ZMonitor.Create(context, "inproc://RouterDealer-Server" + j);
+							monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
+							monitor.Run(cancellor1.Token); 
+						});
+						monitors.Add(monitorThread);
+
 						monitorThread.Start();
 						monitorThread.Join(64);
 					}
@@ -74,15 +71,14 @@ namespace ZeroMQ.Test
 				foreach (string arg in args)
 				{
 					int j = ++i;
-					Thread monitorThread = null;
 
 					if (doMonitor)
 					{
-						monitorThread = new Thread(() =>
+						Thread monitorThread = new Thread(() =>
 						{
 							var monitor = ZMonitor.Create(context, "inproc://RouterDealer-Client" + j);
 							monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
-							monitor.Run(cancellor0.Token);
+							monitor.Run(cancellor1.Token);
 						});
 						monitors.Add(monitorThread);
 
@@ -99,6 +95,12 @@ namespace ZeroMQ.Test
 				Console.CancelKeyPress += (object sender, ConsoleCancelEventArgs e) =>
 				{
 					Console.WriteLine("Cancelled...");
+
+					if (cancellor1 != null)
+					{
+						// Cancel the Monitors
+						cancellor1.Cancel();
+					}
 
 					if (cancellor0 != null)
 					{
@@ -118,6 +120,12 @@ namespace ZeroMQ.Test
 				{
 					Thread.Sleep(250);
 				}
+			}
+
+			if (cancellor1 != null)
+			{
+				// Cancel the Monitors
+				cancellor1.Cancel();
 			}
 
 			if (cancellor0 != null)
@@ -156,7 +164,7 @@ namespace ZeroMQ.Test
 						if (error == ZError.EAGAIN)
 						{
 							error = ZError.None;
-							Thread.Sleep(1000);
+							Thread.Sleep(500);
 
 							continue;
 						}
@@ -185,7 +193,7 @@ namespace ZeroMQ.Test
 			{
 				if (monitor != null)
 				{
-					socket.Monitor("inproc://RouterDealer-Server" + j);
+					socket.Monitor("inproc://RouterDealer-Client" + j);
 					monitor();
 				}
 
