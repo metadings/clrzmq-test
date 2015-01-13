@@ -51,7 +51,7 @@ namespace ZeroMQ.Test
 
 					if (doMonitor) {
 						Thread monitorThread = new Thread(() => {
-							var monitor = ZMonitor.Create(context, "inproc://RouterDealer-Server" + j);
+							var monitor = ZMonitor.Create(context, "inproc://PushPullDevice-Server" + j);
 							monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
 							monitor.Run(cancellor1.Token); 
 						});
@@ -106,7 +106,7 @@ namespace ZeroMQ.Test
 
 					if (doMonitor) {
 						Thread monitorThread = new Thread(() => {
-							var monitor = ZMonitor.Create(context, "inproc://RouterDealer-Client" + j);
+							var monitor = ZMonitor.Create(context, "inproc://PushPullDevice-Client" + j);
 							monitor.AllEvents += (sender, e) => {
 								Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event));
 							};
@@ -126,7 +126,7 @@ namespace ZeroMQ.Test
 
 			if (cancellor1 != null)
 			{
-				// Cancel the Server
+				// Cancel the Monitor
 				cancellor1.Cancel();
 			}
 
@@ -152,7 +152,7 @@ namespace ZeroMQ.Test
 			{
 				if (doMonitor)
 				{
-					socket.Monitor("inproc://RouterDealer-Server" + i);
+					socket.Monitor("inproc://PushPullDevice-Server" + i);
 				}
 
 				socket.Connect(Backend);
@@ -194,7 +194,7 @@ namespace ZeroMQ.Test
 			{
 				if (monitor != null)
 				{
-					socket.Monitor("inproc://RouterDealer-Client" + j);
+					socket.Monitor("inproc://PushPullDevice-Client" + j);
 					monitor();
 				}
 

@@ -6,6 +6,7 @@ using System.Threading;
 
 using ZeroMQ;
 using ZeroMQ.Devices;
+using ZeroMQ.Monitoring;
 
 namespace ZeroMQ.Test
 {
@@ -15,6 +16,7 @@ namespace ZeroMQ.Test
 		public static void StreamDealer(IDictionary<string, string> dict, string[] args)
 		{
 			int who = dict.ContainsKey("--server") ? 1 : (dict.ContainsKey("--client") ? 2 : 0);
+			bool doMonitor = dict.ContainsKey("--monitor");
 
 			if (args == null || args.Length < 1)
 			{
@@ -25,22 +27,48 @@ namespace ZeroMQ.Test
 			// Setup the ZContext
 			context = ZContext.Create();
 
-			// Create the "Server" cancellor and thread
-			var cancellor0 = new CancellationTokenSource();
 			var streamDealer = new StreamDealerDevice(context, Frontend, Backend);
 			streamDealer.Start();
 			streamDealer.Join(TimeSpan.FromMilliseconds(64));
 
+			// Create the "Server" cancellor and thread
+			var cancellor0 = new CancellationTokenSource();
+			var monitors = new List<Thread>();
+			CancellationTokenSource cancellor1 = doMonitor ? new CancellationTokenSource() : null;
+
+			int i = -1;
 			foreach (string arg in args)
 			{
-				var serverThread = new Thread(() => StreamDealer_Server(cancellor0.Token, arg));
+				int j = ++i;
+
+				var serverThread = new Thread(() => StreamDealer_Server(cancellor0.Token, j, arg, doMonitor));
 				serverThread.Start();
 				serverThread.Join(64);
+
+				if (doMonitor)
+				{
+					Thread monitorThread = new Thread(() =>
+					{
+						var monitor = ZMonitor.Create(context, "inproc://StreamDealer-Server" + j);
+						monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
+						monitor.Run(cancellor1.Token);
+					});
+					monitors.Add(monitorThread);
+
+					monitorThread.Start();
+					monitorThread.Join(64);
+				}
 			}
 
 			Console.CancelKeyPress += (object sender, ConsoleCancelEventArgs e) =>
 			{
 				Console.WriteLine("Cancelled...");
+
+				if (cancellor1 != null)
+				{
+					// Cancel the Monitor
+					cancellor1.Cancel();
+				}
 
 				if (cancellor0 != null)
 				{
@@ -66,10 +94,15 @@ namespace ZeroMQ.Test
 
 		}
 
-		static void StreamDealer_Server(CancellationToken cancellus, string name)
+		static void StreamDealer_Server(CancellationToken cancellus, int i, string name, bool doMonitor)
 		{
 			using (var socket = ZSocket.Create(context, ZSocketType.REP))
 			{
+				if (doMonitor)
+				{
+					socket.Monitor("inproc://StreamDealer-Server" + i);
+				}
+
 				socket.Connect(Backend);
 
 				ZError error;
