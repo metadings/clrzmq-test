@@ -105,8 +105,8 @@ Content-Type: text/html
 </head>
 <body>
 	<h3>Hello, I am " + name + @"!</h3>
-    <div>Your Request:</div>
-    <pre>" + request[0].ReadString() + @"</pre>
+	<div>Your Request:</div>
+	<pre>" + request[0].ReadString() + @"</pre>
 </body>
 </html>"));
 						socket.SendMessage(response);
