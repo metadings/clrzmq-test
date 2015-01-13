@@ -77,11 +77,11 @@ namespace ZeroMQ.Test
 				socket.Bind(Frontend);
 
 				ZError error;
-				ZMessage request;
+				ZMessage request = null;
 
 				while (!cancellus.IsCancellationRequested)
 				{
-					if (null == (request = socket.ReceiveMessage(ZSocketFlags.DontWait, out error)))
+					if (!socket.ReceiveMessage(ZSocketFlags.DontWait, ref request, out error))
 					{
 						if (error == ZError.EAGAIN)
 						{
@@ -102,6 +102,8 @@ namespace ZeroMQ.Test
 
 						socket.SendMessage(response);
 					}
+
+					request = null;
 				}
 			}
 		}

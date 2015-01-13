@@ -107,11 +107,11 @@ namespace ZeroMQ.Test
 				socket.Connect(Backend);
 
 				ZError error;
-				ZMessage request;
+				ZMessage request = null;
 
 				while (!cancellus.IsCancellationRequested)
 				{
-					if (null == (request = socket.ReceiveMessage(ZSocketFlags.DontWait, out error)))
+					if (!socket.ReceiveMessage(ZSocketFlags.DontWait, ref request, out error))
 					{
 						if (error == ZError.EAGAIN)
 						{
@@ -131,6 +131,8 @@ namespace ZeroMQ.Test
 						string strg = frame.ReadString();
 						Console.WriteLine("{0} said hello!", strg);
 					}
+
+					request = null;
 				}
 			}
 		}

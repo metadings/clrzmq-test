@@ -37,7 +37,7 @@ namespace ZeroMQ.Test
 				// Create the "Server" cancellor and thread
 				cancellor0 = new CancellationTokenSource();
 
-				for (int i = 0; i < 4; ++i)
+				for (int i = 0; i < 1 /* 4 */; ++i)
 				{
 					var serverThread = new Thread(() => RouterDealer_Server(cancellor0.Token, args[0]));
 					serverThread.Start();
@@ -90,11 +90,11 @@ namespace ZeroMQ.Test
 				socket.Connect(Backend);
 
 				ZError error;
-				ZMessage request;
+				ZMessage request = null;
 
 				while (!cancellus.IsCancellationRequested)
 				{
-					if (null == (request = socket.ReceiveMessage(ZSocketFlags.DontWait, out error)))
+					if (!socket.ReceiveMessage(ZSocketFlags.DontWait, ref request, out error))
 					{
 						if (error == ZError.EAGAIN)
 						{
@@ -114,6 +114,8 @@ namespace ZeroMQ.Test
 						response.Add(ZFrame.Create(name + " says hello to " + request[0].ReadString()));
 						socket.SendMessage(response);
 					}
+
+					request = null;
 				}
 			}
 		}
