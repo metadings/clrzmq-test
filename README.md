@@ -30,6 +30,8 @@ You can run this project by command line `./ZeroMQ.Test.exe`
 ZeroMQ Projects 
 ---
 
+All projects have now a `--monitor` option, which enables ZMonitor usage.
+
 StreamDealer
 -
 
