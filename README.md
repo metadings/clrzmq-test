@@ -58,7 +58,7 @@ Results:
 	World says hello to HA
 	Edward says hello to HE
 	Ulrich says hello to HI
-	World	says hello to HO
+	World says hello to HO
 	Edward says hello to HU
 	Ulrich says hello to HA
 
