@@ -44,16 +44,26 @@ namespace ZeroMQ.Test
 				foreach (string arg in args)
 				{
 					int j = ++i;
+					Thread monitorThread = null;
 
 					if (doMonitor) {
 						var monitor = ZMonitor.Create(context, "inproc://RouterDealer-Server" + j);
-						monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
+						monitorThread = new Thread(() => { 
+							monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
+							monitor.Run(cancellor0.Token); 
+						});
 						monitors.Add(monitor);
 					}
 
 					var serverThread = new Thread(() => RouterDealer_Server(cancellor0.Token, j, arg, doMonitor));
 					serverThread.Start();
 					serverThread.Join(64);
+
+					if (doMonitor)
+					{
+						monitorThread.Start();
+						monitorThread.Join(64);
+					}
 				}
 			}
 			
@@ -65,15 +75,25 @@ namespace ZeroMQ.Test
 				foreach (string arg in args)
 				{
 					int j = ++i;
+					Thread monitorThread = null;
 
 					if (doMonitor)
 					{
 						var monitor = ZMonitor.Create(context, "inproc://RouterDealer-Client" + j);
-						monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
+						monitorThread = new Thread(() =>
+						{
+							monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
+							monitor.Run(cancellor0.Token);
+						});
 						monitors.Add(monitor);
 					}
 
 					Console.WriteLine(RouterDealer_Client(j, arg, doMonitor));
+
+					if (doMonitor)
+					{
+						monitorThread.Start();
+					}
 				}
 			}
 
