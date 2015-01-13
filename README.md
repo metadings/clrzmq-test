@@ -43,18 +43,40 @@ which results in
 	Please start your browser on tcp://192.168.1.10:8080 ...
 
 Have a look into your browser!
+
+RouterDealer
+-
+
+First machine (`192.168.1.10`)
+
+	./ZeroMQ.Test.exe --frontend=tcp://192.168.1.10:2772 --backend=tcp://192.168.1.10:3663 --server=++ RouterDealer World Edward Ulrich
+	
+Second machine (`192.168.1.12`, beware the `10` and `12`)
+
+	./ZeroMQ.Test.exe --backend=tcp://192.168.1.10:3663 --client=+ PubSubDevice HA HE HI HO HU
+	
+Results:
+
+	World says hello to HA
+	Edward says hello to HE
+	Ulrich says hello to HI
+	World	says hello to HO
+	Edward says hello to HU
+	Ulrich says hello to HA
+
 	
 PubSubDevice
 -
-On one machine (`192.168.1.10`)
+
+First machine (`192.168.1.10`)
 
 	./ZeroMQ.Test.exe --frontend=tcp://192.168.1.10:2772 --backend=tcp://192.168.1.10:3663 --server=++ PubSubDevice World Edward Ulrich
 	
-and on another machine (`192.168.1.12`, beware the `10` and `12`)
+Second machine (`192.168.1.12`, beware the `10` and `12`)
 
 	./ZeroMQ.Test.exe --backend=tcp://192.168.1.10:3663 --client=+ PubSubDevice HI HA HO
 
-This results in
+Results:
 
 	Running...
 	HA received 13.01.2015 07:07:52 World
