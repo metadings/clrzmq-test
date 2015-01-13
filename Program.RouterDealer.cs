@@ -85,9 +85,12 @@ namespace ZeroMQ.Test
 							monitor.Run(cancellor0.Token);
 						});
 						monitors.Add(monitorThread);
-					}
 
-					Console.WriteLine(RouterDealer_Client(arg, () => { if (doMonitor) monitorThread.Start(); }));
+						Console.WriteLine(RouterDealer_Client(j, arg, () => { monitorThread.Start(); }));
+					}
+					else {
+						Console.WriteLine(RouterDealer_Client(j, arg, null));
+					}
 				}
 			}
 
@@ -174,7 +177,7 @@ namespace ZeroMQ.Test
 			}
 		}
 
-		static string RouterDealer_Client(string name, Action monitor)
+		static string RouterDealer_Client(int j, string name, Action monitor)
 		{
 			string output = null;
 
@@ -182,6 +185,7 @@ namespace ZeroMQ.Test
 			{
 				if (monitor != null)
 				{
+					socket.Monitor("inproc://RouterDealer-Server" + j);
 					monitor();
 				}
 
