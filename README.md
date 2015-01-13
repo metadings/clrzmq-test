@@ -1,2 +1,2 @@
-# clrzmq-test
-Examples for [ZeroMQ CLR namespace](http://github.com/zeromq/clrzmq)
+# ZeroMQ CLR namespace
+Examples for [github.com/zeromq/clrzmq4](http://github.com/zeromq/clrzmq4)
