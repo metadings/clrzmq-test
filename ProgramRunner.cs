@@ -82,9 +82,18 @@ namespace ZeroMQ.Test
 			}
 
 			Console.WriteLine();
-			Console.WriteLine("Usage: ZeroApp <command> [options]");
+			Console.WriteLine("Usage: ./" + AppDomain.CurrentDomain.FriendlyName + " [--option=++] [--option=tcp://192.168.1.1:8080] <command> World Edward Ulrich");
+
 			Console.WriteLine();
-			Console.WriteLine("Available Commands:");
+			Console.WriteLine("Available [option]s:");
+			Console.WriteLine();
+			foreach (FieldInfo field in fields)
+			{
+				Console.WriteLine("  --{0}", field.Name);
+			}
+
+			Console.WriteLine();
+			Console.WriteLine("Available <command>s:");
 			Console.WriteLine();
 
 			foreach (MethodInfo meth in methods)
@@ -94,7 +103,7 @@ namespace ZeroMQ.Test
 				if (0 < meth.GetCustomAttributes(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute), true).Length)
 					continue;
 
-				Console.WriteLine("  {0}", meth.Name);
+				Console.WriteLine("    {0}", meth.Name);
 			}
 
 			Console.WriteLine();
