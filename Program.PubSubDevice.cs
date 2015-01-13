@@ -77,7 +77,7 @@ namespace ZeroMQ.Test
 
 			while (true)
 			{
-				Thread.Sleep(64);
+				Thread.Sleep(250);
 			}
 
 		}
@@ -94,7 +94,7 @@ namespace ZeroMQ.Test
 				{
 					if (now.AddSeconds(5) >= DateTime.Now)
 					{
-						Thread.Sleep(1);
+						Thread.Sleep(100);
 						continue;
 					}
 					now = DateTime.Now;
@@ -127,7 +127,7 @@ namespace ZeroMQ.Test
 
 				while (!cancellus.IsCancellationRequested)
 				{
-					if (!poller.PollIn(out message, out error, TimeSpan.FromMilliseconds(64)))
+					if (!poller.PollIn(out message, out error, TimeSpan.FromMilliseconds(1000)))
 					{
 						if (error == ZError.EAGAIN)
 						{

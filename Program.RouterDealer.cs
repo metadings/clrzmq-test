@@ -56,7 +56,7 @@ namespace ZeroMQ.Test
 
 				while (true)
 				{
-					Thread.Sleep(64);
+					Thread.Sleep(250);
 				}
 			}
 			else if (who == 0 || who == 2)
@@ -99,7 +99,7 @@ namespace ZeroMQ.Test
 						if (error == ZError.EAGAIN)
 						{
 							error = ZError.None;
-							Thread.Sleep(1);
+							Thread.Sleep(1000);
 
 							continue;
 						}
