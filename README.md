@@ -30,7 +30,7 @@ You can run this project by command line `./ZeroMQ.Test.exe`
 ZeroMQ Projects 
 ---
 
-All projects have now a `--monitor` option, which enables ZMonitor usage.
+All projects have now a `--monitor` option, which enables `ZMonitor` usage.
 
 StreamDealer
 -
@@ -62,7 +62,6 @@ Results:
 	Ulrich says hello to HI
 	World says hello to HO
 	Edward says hello to HU
-	Ulrich says hello to HA
 
 	
 PubSubDevice
