@@ -29,8 +29,9 @@ namespace ZeroMQ.Test
 
 			RouterDealerDevice routerDealer = null;
 			CancellationTokenSource cancellor0 = null;
-			var monitors = new List<Thread>();
-			CancellationTokenSource cancellor1 = doMonitor ? new CancellationTokenSource() : null;
+			
+			var monitors = new List<ZMonitor>();
+			var cancellor1 = doMonitor ? new CancellationTokenSource() : null;
 
 			if (who == 0 || who == 1)
 			{
@@ -45,20 +46,14 @@ namespace ZeroMQ.Test
 				{
 					int j = ++i;
 
-					var serverThread = new Thread(() => RouterDealer_Server(cancellor0.Token, j, arg, doMonitor));
-					serverThread.Start();
-					serverThread.Join(64);
+					var serverThread = ZThread.Create(() => RouterDealer_Server(cancellor0.Token, j, arg, doMonitor));
+					serverThread.Start(cancellor0).Join(64);
 
 					if (doMonitor) {
-						Thread monitorThread = new Thread(() => {
-							var monitor = ZMonitor.Create(context, "inproc://RouterDealer-Server" + j);
-							monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
-							monitor.Run(cancellor1.Token); 
-						});
-						monitors.Add(monitorThread);
-
-						monitorThread.Start();
-						monitorThread.Join(64);
+						var monitor = ZMonitor.Create(context, "inproc://RouterDealer-Server" + j);
+						monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
+						monitor.Start(cancellor1).Join(64);
+						monitors.Add(monitor);
 					}
 				}
 			}
@@ -73,15 +68,10 @@ namespace ZeroMQ.Test
 
 					if (doMonitor)
 					{
-						Thread monitorThread = new Thread(() =>
-						{
-							var monitor = ZMonitor.Create(context, "inproc://RouterDealer-Client" + j);
-							monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
-							monitor.Run(cancellor1.Token);
-						});
-						monitors.Add(monitorThread);
+						var monitor = ZMonitor.Create(context, "inproc://RouterDealer-Client" + j);						monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
+						monitors.Add(monitor);
 
-						Console.WriteLine(RouterDealer_Client(j, arg, () => { monitorThread.Start(); }));
+						Console.WriteLine(RouterDealer_Client(j, arg, () => { monitor.Start(cancellor1).Join(64); }));
 					}
 					else {
 						Console.WriteLine(RouterDealer_Client(j, arg, null));

@@ -30,7 +30,7 @@ namespace ZeroMQ.Test
 
 			PushPullDevice pullDealer = null;
 
-			var monitors = new List<Thread>();
+			var monitors = new List<ZMonitor>();
 			var cancellor1 = doMonitor ? new CancellationTokenSource() : null;
 
 			if (who == 0 || who == 1)
@@ -52,15 +52,10 @@ namespace ZeroMQ.Test
 					serverThread.Join(64);
 
 					if (doMonitor) {
-						Thread monitorThread = new Thread(() => {
-							var monitor = ZMonitor.Create(context, "inproc://PushPullDevice-Server" + j);
-							monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
-							monitor.Run(cancellor1.Token); 
-						});
-						monitors.Add(monitorThread);
-
-						monitorThread.Start();
-						monitorThread.Join(64);
+						var monitor = ZMonitor.Create(context, "inproc://PushPullDevice-Server" + j);
+						monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
+						monitor.Start(cancellor1).Join(64);
+						monitors.Add(monitor);
 					}
 				}
 			}
@@ -107,19 +102,13 @@ namespace ZeroMQ.Test
 					int j = ++i;
 
 					if (doMonitor) {
-						Thread monitorThread = new Thread(() => {
-							var monitor = ZMonitor.Create(context, "inproc://PushPullDevice-Client" + j);
-							monitor.AllEvents += (sender, e) => {
-								Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event));
-							};
-							monitor.Run(cancellor1.Token);
-						});
-						monitors.Add(monitorThread);
+						var monitor = ZMonitor.Create(context, "inproc://PushPullDevice-Client" + j);						monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
+						monitors.Add(monitor);
 
-						PushPullDevice_Client(j, arg, () => { monitorThread.Start(); });
+						PushPullDevice_Client(j, arg, () => { monitor.Start(cancellor1).Join(64); });
 					} 
 					else {
-						PushPullDevice_Client(j, arg, null);
+						PushPullDevice_Client(j, arg, default(Action));
 					}
 				}
 

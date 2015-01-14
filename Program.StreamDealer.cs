@@ -33,8 +33,8 @@ namespace ZeroMQ.Test
 			streamDealer.Start(cancellor0);
 			streamDealer.Join(64);
 
-			var monitors = new List<Thread>();
-			CancellationTokenSource cancellor1 = doMonitor ? new CancellationTokenSource() : null;
+			var monitors = new List<ZMonitor>();
+			var cancellor1 = doMonitor ? new CancellationTokenSource() : null;
 
 			int i = -1;
 			foreach (string arg in args)
@@ -47,16 +47,10 @@ namespace ZeroMQ.Test
 
 				if (doMonitor)
 				{
-					Thread monitorThread = new Thread(() =>
-					{
-						var monitor = ZMonitor.Create(context, "inproc://StreamDealer-Server" + j);
-						monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
-						monitor.Run(cancellor1.Token);
-					});
-					monitors.Add(monitorThread);
-
-					monitorThread.Start();
-					monitorThread.Join(64);
+					var monitor = ZMonitor.Create(context, "inproc://StreamDealer-Server" + j);
+					monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
+					monitor.Start(cancellor1).Join(64);
+					monitors.Add(monitor);
 				}
 			}
 

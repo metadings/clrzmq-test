@@ -31,7 +31,7 @@ namespace ZeroMQ.Test
 
 			PubSubDevice serverDevice = null;
 
-			var monitors = new List<Thread>();
+			var monitors = new List<ZMonitor>();
 			var cancellor1 = doMonitor ? new CancellationTokenSource() : null;
 
 			if (who == 0 || who == 1)
@@ -52,15 +52,10 @@ namespace ZeroMQ.Test
 					serverThread.Join(64);
 
 					if (doMonitor) {
-						Thread monitorThread = new Thread(() => {
-							var monitor = ZMonitor.Create(context, "inproc://PubSubDevice-Server" + j);
-							monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
-							monitor.Run(cancellor1.Token); 
-						});
-						monitors.Add(monitorThread);
-
-						monitorThread.Start();
-						monitorThread.Join(64);
+						var monitor = ZMonitor.Create(context, "inproc://PubSubDevice-Server" + j);
+						monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
+						monitor.Start(cancellor1).Join(64);
+						monitors.Add(monitor);
 					}
 				}
 			}
@@ -77,15 +72,10 @@ namespace ZeroMQ.Test
 					clientThread.Join(64);
 
 					if (doMonitor) {
-						Thread monitorThread = new Thread(() => {
-							var monitor = ZMonitor.Create(context, "inproc://PubSubDevice-Client" + j);
-							monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
-							monitor.Run(cancellor1.Token); 
-						});
-						monitors.Add(monitorThread);
-
-						monitorThread.Start();
-						monitorThread.Join(64);
+						var monitor = ZMonitor.Create(context, "inproc://PubSubDevice-Client" + j);
+						monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
+						monitor.Start(cancellor1).Join(64);
+						monitors.Add(monitor);
 					}
 				}
 			}
