@@ -119,7 +119,7 @@ namespace ZeroMQ.Test
 					{
 						response.Add(ZFrame.Create(
 @"HTTP/1.1 200 OK
-Content-Type: text/html
+Content-Type: text/html; charset=UTF-8
 
 <html>
 <head>
