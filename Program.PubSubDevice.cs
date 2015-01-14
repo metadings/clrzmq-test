@@ -28,10 +28,8 @@ namespace ZeroMQ.Test
 			context = ZContext.Create();
 
 			var cancellor0 = new CancellationTokenSource();
-
 			PubSubDevice serverDevice = null;
 
-			var monitors = new List<ZMonitor>();
 			var cancellor1 = doMonitor ? new CancellationTokenSource() : null;
 
 			if (who == 0 || who == 1)
@@ -54,8 +52,8 @@ namespace ZeroMQ.Test
 					if (doMonitor) {
 						var monitor = ZMonitor.Create(context, "inproc://PubSubDevice-Server" + j);
 						monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
+
 						monitor.Start(cancellor1).Join(64);
-						monitors.Add(monitor);
 					}
 				}
 			}
@@ -74,8 +72,8 @@ namespace ZeroMQ.Test
 					if (doMonitor) {
 						var monitor = ZMonitor.Create(context, "inproc://PubSubDevice-Client" + j);
 						monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
+
 						monitor.Start(cancellor1).Join(64);
-						monitors.Add(monitor);
 					}
 				}
 			}
@@ -117,10 +115,7 @@ namespace ZeroMQ.Test
 		{
 			using (var socket = ZSocket.Create(context, ZSocketType.PUB))
 			{
-				if (doMonitor) 
-				{
-					socket.Monitor("inproc://PubSubDevice-Server" + i);
-				}
+				if (doMonitor) socket.Monitor("inproc://PubSubDevice-Server" + i);
 
 				socket.Connect(Frontend);
 
@@ -153,10 +148,7 @@ namespace ZeroMQ.Test
 		{
 			using (var socket = ZSocket.Create(context, ZSocketType.SUB))
 			{
-				if (doMonitor)
-				{
-					socket.Monitor("inproc://PubSubDevice-Client" + j);
-				}
+				if (doMonitor) socket.Monitor("inproc://PubSubDevice-Client" + j);
 
 				socket.Connect(Backend);
 

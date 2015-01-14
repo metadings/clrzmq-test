@@ -33,7 +33,6 @@ namespace ZeroMQ.Test
 			streamDealer.Start(cancellor0);
 			streamDealer.Join(64);
 
-			var monitors = new List<ZMonitor>();
 			var cancellor1 = doMonitor ? new CancellationTokenSource() : null;
 
 			int i = -1;
@@ -49,8 +48,8 @@ namespace ZeroMQ.Test
 				{
 					var monitor = ZMonitor.Create(context, "inproc://StreamDealer-Server" + j);
 					monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
+
 					monitor.Start(cancellor1).Join(64);
-					monitors.Add(monitor);
 				}
 			}
 
@@ -92,10 +91,7 @@ namespace ZeroMQ.Test
 		{
 			using (var socket = ZSocket.Create(context, ZSocketType.REP))
 			{
-				if (doMonitor)
-				{
-					socket.Monitor("inproc://StreamDealer-Server" + i);
-				}
+				if (doMonitor) socket.Monitor("inproc://StreamDealer-Server" + i);
 
 				socket.Connect(Backend);
 
@@ -118,7 +114,6 @@ namespace ZeroMQ.Test
 						throw new ZException(error);
 					}
 
-					// Let the response be "Hello " + input
 					using (request)
 					using (var response = new ZMessage())
 					{

@@ -30,7 +30,6 @@ namespace ZeroMQ.Test
 			RouterDealerDevice routerDealer = null;
 			CancellationTokenSource cancellor0 = null;
 			
-			var monitors = new List<ZMonitor>();
 			var cancellor1 = doMonitor ? new CancellationTokenSource() : null;
 
 			if (who == 0 || who == 1)
@@ -52,8 +51,8 @@ namespace ZeroMQ.Test
 					if (doMonitor) {
 						var monitor = ZMonitor.Create(context, "inproc://RouterDealer-Server" + j);
 						monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
+
 						monitor.Start(cancellor1).Join(64);
-						monitors.Add(monitor);
 					}
 				}
 			}
@@ -68,13 +67,13 @@ namespace ZeroMQ.Test
 
 					if (doMonitor)
 					{
-						var monitor = ZMonitor.Create(context, "inproc://RouterDealer-Client" + j);						monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
-						monitors.Add(monitor);
+						var monitor = ZMonitor.Create(context, "inproc://RouterDealer-Client" + j);
+						monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
 
 						Console.WriteLine(RouterDealer_Client(j, arg, () => { monitor.Start(cancellor1).Join(64); }));
 					}
 					else {
-						Console.WriteLine(RouterDealer_Client(j, arg, null));
+						Console.WriteLine(RouterDealer_Client(j, arg));
 					}
 				}
 			}
@@ -136,10 +135,7 @@ namespace ZeroMQ.Test
 		{
 			using (var socket = ZSocket.Create(context, ZSocketType.REP))
 			{
-				if (doMonitor)
-				{
-					socket.Monitor("inproc://RouterDealer-Server" + i);
-				}
+				if (doMonitor) socket.Monitor("inproc://RouterDealer-Server" + i);
 
 				socket.Connect(Backend);
 
@@ -153,7 +149,7 @@ namespace ZeroMQ.Test
 						if (error == ZError.EAGAIN)
 						{
 							error = ZError.None;
-							Thread.Sleep(500);
+							Thread.Sleep(1);
 
 							continue;
 						}
@@ -161,11 +157,12 @@ namespace ZeroMQ.Test
 						throw new ZException(error);
 					}
 
-					// Let the response be "Hello " + input
 					using (request)
 					using (var response = new ZMessage())
 					{
+						// Read the REQuest, Write the REPly
 						response.Add(ZFrame.Create(name + " says hello to " + request[0].ReadString()));
+
 						socket.SendMessage(response);
 					}
 
@@ -174,28 +171,28 @@ namespace ZeroMQ.Test
 			}
 		}
 
-		static string RouterDealer_Client(int j, string name, Action monitor)
+		static string RouterDealer_Client(int j, string name, Action monitor = null)
 		{
 			string output = null;
 
 			using (var socket = ZSocket.Create(context, ZSocketType.REQ))
 			{
-				if (monitor != null)
-				{
-					socket.Monitor("inproc://RouterDealer-Client" + j);
-					monitor();
-				}
+				if (monitor != null) { socket.Monitor("inproc://RouterDealer-Client" + j); monitor(); }
 
 				socket.Connect(Frontend);
 
 				using (var request = new ZMessage())
 				{
+					// Append a ZFrame with the "name"
 					request.Add(ZFrame.Create(name));
+
+					// Send the REQuest
 					socket.SendMessage(request);
 				}
 
 				using (ZMessage response = socket.ReceiveMessage())
 				{
+					// Read the REPly
 					output = response[0].ReadString();
 				}
 			}
