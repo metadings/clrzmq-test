@@ -49,9 +49,16 @@ namespace ZeroMQ.Test
 					serverThread.Start();
 					serverThread.Join(64);
 
-					if (doMonitor) {
+					if (doMonitor) 
+					{
 						var monitor = ZMonitor.Create(context, "inproc://PubSubDevice-Server" + j);
-						monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
+						
+						monitor.AllEvents += (sender, e) =>
+						{
+							Console.Write("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event));
+							if (e.Event.EventValue > 0) Console.Write(" ({0})", e.Event.EventValue);
+							Console.WriteLine();
+						};
 
 						monitor.Start(cancellor1).Join(64);
 					}
@@ -69,9 +76,16 @@ namespace ZeroMQ.Test
 					clientThread.Start();
 					clientThread.Join(64);
 
-					if (doMonitor) {
+					if (doMonitor)
+					{
 						var monitor = ZMonitor.Create(context, "inproc://PubSubDevice-Client" + j);
-						monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
+						
+						monitor.AllEvents += (sender, e) =>
+						{
+							Console.Write("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event));
+							if (e.Event.EventValue > 0) Console.Write(" ({0})", e.Event.EventValue);
+							Console.WriteLine();
+						};
 
 						monitor.Start(cancellor1).Join(64);
 					}

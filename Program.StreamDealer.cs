@@ -30,8 +30,7 @@ namespace ZeroMQ.Test
 			var cancellor0 = new CancellationTokenSource();
 
 			var streamDealer = new StreamDealerDevice(context, Frontend, Backend);
-			streamDealer.Start(cancellor0);
-			streamDealer.Join(64);
+			streamDealer.Start(cancellor0).Join(64);
 
 			var cancellor1 = doMonitor ? new CancellationTokenSource() : null;
 
@@ -47,7 +46,12 @@ namespace ZeroMQ.Test
 				if (doMonitor)
 				{
 					var monitor = ZMonitor.Create(context, "inproc://StreamDealer-Server" + j);
-					monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
+					monitor.AllEvents += (sender, e) => { 
+						Console.Write("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event));
+						if (e.Event.EventValue > 0) Console.Write(" ({0})", e.Event.EventValue);
+						if (!string.IsNullOrEmpty(e.Event.Address)) Console.Write(" ({0})", e.Event.Address);
+						Console.WriteLine();
+					};
 
 					monitor.Start(cancellor1).Join(64);
 				}
@@ -96,7 +100,7 @@ namespace ZeroMQ.Test
 				socket.Connect(Backend);
 
 				ZError error;
-				ZMessage request = null;
+				ZMessage request;
 				var poller = ZPollItem.CreateReceiver(socket);
 
 				while (!cancellus.IsCancellationRequested)
@@ -127,12 +131,22 @@ Content-Type: text/html; charset=UTF-8
 </head>
 <body>
 	<h3>Hello, I am " + name + @"!</h3>
+
 	<div>Your Request:</div>
 	<pre>" + request[0].ReadString() + @"</pre>
 
+	<button id=""btnStop"">Stop</button>
 	<script type=""text/javascript"">
 		(function () {
-			setTimeout(function () { location.reload(true); }, 1000);
+
+			var timeout = setTimeout(function () { location.reload(true); }, 1000);
+
+			addEventListener(""click"", function () {
+				clearTimeout(timeout);
+				var btn = document.getElementById(""btnStop"");
+				btn.parentNode.removeChild(btn);
+			});
+
 		}());
 	</script>
 
@@ -140,8 +154,6 @@ Content-Type: text/html; charset=UTF-8
 </html>"));
 						socket.SendMessage(response);
 					}
-
-					request = null;
 				}
 			}
 		}

@@ -50,7 +50,13 @@ namespace ZeroMQ.Test
 
 					if (doMonitor) {
 						var monitor = ZMonitor.Create(context, "inproc://RouterDealer-Server" + j);
-						monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
+						
+						monitor.AllEvents += (sender, e) =>
+						{
+							Console.Write("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event));
+							if (e.Event.EventValue > 0) Console.Write(" ({0})", e.Event.EventValue);
+							Console.WriteLine();
+						};
 
 						monitor.Start(cancellor1).Join(64);
 					}
@@ -68,7 +74,13 @@ namespace ZeroMQ.Test
 					if (doMonitor)
 					{
 						var monitor = ZMonitor.Create(context, "inproc://RouterDealer-Client" + j);
-						monitor.AllEvents += (sender, e) => { Console.WriteLine("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event)); };
+						
+						monitor.AllEvents += (sender, e) =>
+						{
+							Console.Write("  {0}: {1}", arg, Enum.GetName(typeof(ZMonitorEvents), e.Event.Event));
+							if (e.Event.EventValue > 0) Console.Write(" ({0})", e.Event.EventValue);
+							Console.WriteLine();
+						};
 
 						Console.WriteLine(RouterDealer_Client(j, arg, () => { monitor.Start(cancellor1).Join(64); }));
 					}
