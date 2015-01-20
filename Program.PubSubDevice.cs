@@ -150,7 +150,7 @@ namespace ZeroMQ.Test
 							string.Format("{0} {1}", DateTime.Now.ToString("G"), name)
 						));
 
-						socket.SendMessage(response);
+						socket.Send(response);
 					}
 				}
 

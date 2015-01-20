@@ -119,7 +119,7 @@ namespace ZeroMQ.Test
 				{
 					request.Add(new ZFrame(name));
 
-					socket.SendMessage(request);
+					socket.Send(request);
 				}
 			}
 		}

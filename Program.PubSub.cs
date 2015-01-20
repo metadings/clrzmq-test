@@ -91,7 +91,7 @@ namespace ZeroMQ.Test
 					{
 						response.Add(new ZFrame(DateTime.Now.ToString("G") + " " + names[nameI]));
 
-						socket.SendMessage(response);
+						socket.Send(response);
 					}
 				}
 

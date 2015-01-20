@@ -152,7 +152,7 @@ Content-Type: text/html; charset=UTF-8
 
 </body>
 </html>"));
-						socket.SendMessage(response);
+						socket.Send(response);
 					}
 				}
 			}
