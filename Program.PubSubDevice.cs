@@ -146,7 +146,7 @@ namespace ZeroMQ.Test
 
 					using (var response = new ZMessage())
 					{
-						response.Add(ZFrame.Create(
+						response.Add(new ZFrame(
 							string.Format("{0} {1}", DateTime.Now.ToString("G"), name)
 						));
 

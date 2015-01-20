@@ -117,7 +117,7 @@ namespace ZeroMQ.Test
 
 				using (var request = new ZMessage())
 				{
-					request.Add(ZFrame.Create(name));
+					request.Add(new ZFrame(name));
 
 					socket.SendMessage(request);
 				}
