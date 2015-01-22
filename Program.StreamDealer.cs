@@ -101,11 +101,11 @@ namespace ZeroMQ.Test
 
 				ZError error;
 				ZMessage request;
-				var poller = ZPollItem.CreateReceiver(socket);
+				var poller = ZPollItem.CreateReceiver();
 
 				while (!cancellus.IsCancellationRequested)
 				{
-					if (!poller.PollIn(out request, out error, TimeSpan.FromMilliseconds(250)))
+					if (!socket.PollIn(poller, out request, out error, TimeSpan.FromMilliseconds(250)))
 					{
 						if (error == ZError.EAGAIN)
 						{
