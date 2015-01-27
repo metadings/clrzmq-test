@@ -45,8 +45,9 @@ namespace ZeroMQ.Test
 				{
 					int j = ++i;
 
-					var serverThread = ZThread.Create(() => RouterDealer_Server(cancellor0.Token, j, arg, doMonitor));
-					serverThread.Start(cancellor0).Join(64);
+					var serverThread = new Thread(() => RouterDealer_Server(cancellor0.Token, j, arg, doMonitor));
+					serverThread.Start(cancellor0);
+					serverThread.Join(64);
 
 					if (doMonitor) {
 						var monitor = ZMonitor.Create(context, "inproc://RouterDealer-Server" + j);
