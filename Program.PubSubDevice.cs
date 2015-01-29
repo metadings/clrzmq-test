@@ -37,7 +37,8 @@ namespace ZeroMQ.Test
 				if (who == 0 || dict["--server"] == "++")
 				{
 					serverDevice = new PubSubDevice(context, Frontend, Backend);
-					serverDevice.Start(cancellor0).Join(64);
+					serverDevice.Start(cancellor0);
+					serverDevice.Join(64);
 				}
 
 				int i = -1;
@@ -60,7 +61,8 @@ namespace ZeroMQ.Test
 							Console.WriteLine();
 						};
 
-						monitor.Start(cancellor1).Join(64);
+						monitor.Start(cancellor1);
+						monitor.Join(64);
 					}
 				}
 			}
@@ -87,7 +89,8 @@ namespace ZeroMQ.Test
 							Console.WriteLine();
 						};
 
-						monitor.Start(cancellor1).Join(64);
+						monitor.Start(cancellor1);
+						monitor.Join(64);
 					}
 				}
 			}

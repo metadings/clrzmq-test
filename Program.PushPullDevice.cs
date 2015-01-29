@@ -39,7 +39,8 @@ namespace ZeroMQ.Test
 
 				// Setup the Dealer
 				pullDealer = new PushPullDevice(context, Frontend, Backend);
-				pullDealer.Start(cancellor0).Join(64);
+				pullDealer.Start(cancellor0);
+				pullDealer.Join(64);
 
 				int i = -1;
 				foreach (string name in args)
@@ -61,7 +62,8 @@ namespace ZeroMQ.Test
 							Console.WriteLine();
 						};
 
-						monitor.Start(cancellor1).Join(64);
+						monitor.Start(cancellor1);
+						monitor.Join(64);
 					}
 				}
 			}
@@ -118,7 +120,7 @@ namespace ZeroMQ.Test
 							Console.WriteLine();
 						};
 
-						PushPullDevice_Client(j, arg, () => { monitor.Start(cancellor1).Join(64); });
+						PushPullDevice_Client(j, arg, () => { monitor.Start(cancellor1); monitor.Join(64); });
 					} 
 					else {
 						PushPullDevice_Client(j, arg);

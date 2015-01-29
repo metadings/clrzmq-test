@@ -38,15 +38,17 @@ namespace ZeroMQ.Test
 				cancellor0 = new CancellationTokenSource();
 
 				routerDealer = new RouterDealerDevice(context, Frontend, Backend);
-				routerDealer.Start(cancellor0).Join(64);
+				routerDealer.Start(cancellor0);
+				routerDealer.Join(64);
 
 				int i = -1;
 				foreach (string arg in args)
 				{
 					int j = ++i;
 
-					var serverThread = ZThread.Create(() => RouterDealer_Server(cancellor0.Token, j, arg, doMonitor));
-					serverThread.Start(cancellor0).Join(64);
+					var serverThread = new Thread(() => RouterDealer_Server(cancellor0.Token, j, arg, doMonitor));
+					serverThread.Start(cancellor0);
+					serverThread.Join(64);
 
 					if (doMonitor) {
 						var monitor = ZMonitor.Create(context, "inproc://RouterDealer-Server" + j);
@@ -58,7 +60,8 @@ namespace ZeroMQ.Test
 							Console.WriteLine();
 						};
 
-						monitor.Start(cancellor1).Join(64);
+						monitor.Start(cancellor1);
+						monitor.Join(64);
 					}
 				}
 			}
@@ -82,7 +85,7 @@ namespace ZeroMQ.Test
 							Console.WriteLine();
 						};
 
-						Console.WriteLine(RouterDealer_Client(j, arg, () => { monitor.Start(cancellor1).Join(64); }));
+						Console.WriteLine(RouterDealer_Client(j, arg, () => { monitor.Start(cancellor1); monitor.Join(64); }));
 					}
 					else {
 						Console.WriteLine(RouterDealer_Client(j, arg));

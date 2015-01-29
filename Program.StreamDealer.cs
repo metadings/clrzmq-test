@@ -30,7 +30,8 @@ namespace ZeroMQ.Test
 			var cancellor0 = new CancellationTokenSource();
 
 			var streamDealer = new StreamDealerDevice(context, Frontend, Backend);
-			streamDealer.Start(cancellor0).Join(64);
+			streamDealer.Start(cancellor0);
+			streamDealer.Join(64);
 
 			var cancellor1 = doMonitor ? new CancellationTokenSource() : null;
 
@@ -53,7 +54,8 @@ namespace ZeroMQ.Test
 						Console.WriteLine();
 					};
 
-					monitor.Start(cancellor1).Join(64);
+					monitor.Start(cancellor1);
+					monitor.Join(64);
 				}
 			}
 
