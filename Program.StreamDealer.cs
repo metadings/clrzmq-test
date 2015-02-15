@@ -8,7 +8,7 @@ using ZeroMQ;
 using ZeroMQ.Devices;
 using ZeroMQ.Monitoring;
 
-namespace ZeroMQ.Test
+namespace Examples
 {
 	static partial class Program
 	{
@@ -134,8 +134,11 @@ Content-Type: text/html; charset=UTF-8
 <body>
 	<h3>Hello, I am " + name + @"!</h3>
 
-	<div>Your Request:</div>
+	<div>Your IP:</div>
 	<pre>" + request[0].ReadString() + @"</pre>
+
+	<div>Your Request:</div>
+	<pre>" + request[1].ReadString() + @"</pre>
 
 	<button id=""btnStop"">Stop</button>
 	<script type=""text/javascript"">

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 
-namespace ZeroMQ.Test
+namespace Examples
 {
 	static class ProgramRunner
 	{

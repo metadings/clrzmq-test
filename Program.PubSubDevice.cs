@@ -9,7 +9,7 @@ using ZeroMQ;
 using ZeroMQ.Devices;
 using ZeroMQ.Monitoring;
 
-namespace ZeroMQ.Test
+namespace Examples
 {
 	static partial class Program
 	{
