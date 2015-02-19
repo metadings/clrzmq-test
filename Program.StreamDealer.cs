@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
@@ -22,6 +25,11 @@ namespace Examples
 			{
 				// say here were some arguments...
 				args = new string[] { "World" };
+			}
+
+			if (!dict.ContainsKey("Frontend"))
+			{
+				Frontend = string.Format("tcp://{0}:8080", GetPublicIPs().FirstOrDefault());
 			}
 
 			// Setup the ZContext
@@ -161,6 +169,30 @@ Content-Type: text/html; charset=UTF-8
 					}
 				}
 			}
+		}
+
+		static IEnumerable<IPAddress> GetPublicIPs() 
+		{
+			var list = new List<IPAddress>();
+			NetworkInterface[] ifaces = NetworkInterface.GetAllNetworkInterfaces();
+			foreach (NetworkInterface iface in ifaces)
+			{
+				if (iface.NetworkInterfaceType == NetworkInterfaceType.Loopback)
+					continue;
+				if (iface.OperationalStatus != OperationalStatus.Up)
+					continue;
+
+				var props = iface.GetIPProperties();
+				var addresses = props.UnicastAddresses;
+				foreach (UnicastIPAddressInformation address in addresses)
+				{
+					if (address.Address.AddressFamily == AddressFamily.InterNetwork)
+						list.Add(address.Address);
+					// if (address.Address.AddressFamily == AddressFamily.InterNetworkV6)
+					//	list.Add(address.Address);
+				}
+			}
+			return list;
 		}
 
 	}
