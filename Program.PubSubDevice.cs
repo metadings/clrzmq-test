@@ -6,7 +6,6 @@ using System.Threading;
 using System.Security.Cryptography;
 
 using ZeroMQ;
-using ZeroMQ.Devices;
 using ZeroMQ.Monitoring;
 
 namespace Examples

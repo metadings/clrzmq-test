@@ -2,22 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Threading;
 
 namespace Examples
 {
 	static class ProgramRunner
 	{
-
 		static int Main(string[] args)
 		{
-			// HACK
-			// Program.Start(args);
-			// return 0;
-
-
 			// REAL
-			var fields = typeof(Program).GetFields(BindingFlags.Public | BindingFlags.Static).OrderBy(field => field.Name);
+			var fields = typeof(Program).GetFields(BindingFlags.Public | BindingFlags.Static).OrderBy(field => field.Name).ToList();
 
 			int leaveOut = 0;
 			var dict = new Dictionary<string, string>();
@@ -36,7 +31,8 @@ namespace Examples
 							key = arg.Substring(0, iOfEquals);
 							value = arg.Substring(iOfEquals + 1);
 						}
-						else {
+						else
+						{
 							key = arg.Substring(0);
 							value = null;
 						}
@@ -45,7 +41,20 @@ namespace Examples
 						FieldInfo keyField = fields.Where(field => string.Equals(field.Name, key.Substring(2), StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
 						if (keyField != null)
 						{
-							keyField.SetValue(null, value);
+							if (keyField.FieldType == typeof(string))
+							{
+								keyField.SetValue(null, value);
+							}
+							else if (keyField.FieldType == typeof(bool))
+							{
+								bool equalsTrue = (value == null || value == string.Empty);
+								if (!equalsTrue)
+									equalsTrue = string.Equals(value, "true", StringComparison.OrdinalIgnoreCase);
+								if (!equalsTrue)
+									equalsTrue = string.Equals(value, "+", StringComparison.OrdinalIgnoreCase);
+
+								keyField.SetValue(null, equalsTrue);
+							}
 						}
 					}
 				}
@@ -54,7 +63,7 @@ namespace Examples
 			int returnMain = 0;
 			string command = (args == null || args.Length == 0) ? "help" : args[0 + leaveOut].ToLower();
 
-			var methods = typeof(Program).GetMethods(BindingFlags.Public | BindingFlags.Static).OrderBy(method => method.Name);
+			var methods = typeof(Program).GetMethods(BindingFlags.Public | BindingFlags.Static).OrderBy(method => method.Name).ToList();
 			if (command != "help")
 			{
 
@@ -62,16 +71,35 @@ namespace Examples
 				if (method != null)
 				{
 
+					ParameterInfo[] methodParameters = method.GetParameters();
+
+					object[] parameters;
+
+					if (methodParameters.Length == 2)
+					{
+						parameters = new object[] { 
+							dict,
+							args.Skip(1 + leaveOut).ToArray() /* string[] args */
+						};
+					}
+					else if (methodParameters.Length == 1)
+					{
+						parameters = new object[] { 
+							args.Skip(1 + leaveOut).ToArray() /* string[] args */
+						};
+					}
+					else
+					{
+						throw new InvalidOperationException();
+					}
+
 					// INFO: Invoking the Sample by "the Delegate.Invoke" makes it hard to debug!
 					// Using DebugInvoke
 					object result
 						= DebugStackTrace<TargetInvocationException>.Invoke(
 							method,
 							null,
-							new object[] { 
-                                dict,
-							    args.Skip(1 + leaveOut).ToArray() /* string[] args */
-					        });
+							parameters);
 
 					if (method.ReturnType == typeof(bool) && true == (bool)result)
 					{
@@ -87,14 +115,17 @@ namespace Examples
 			}
 
 			Console.WriteLine();
-			Console.WriteLine("Usage: ./" + AppDomain.CurrentDomain.FriendlyName + " [--option=++] [--option=tcp://192.168.1.1:8080] <command> World Edward Ulrich");
+			Console.WriteLine("Usage: ./" + AppDomain.CurrentDomain.FriendlyName + " [--option=++] [--option=tcp://192.168.1.1:8080] <command> World Me You");
 
-			Console.WriteLine();
-			Console.WriteLine("Available [option]s:");
-			Console.WriteLine();
-			foreach (FieldInfo field in fields)
+			if (fields.Count > 0)
 			{
-				Console.WriteLine("  --{0}", field.Name);
+				Console.WriteLine();
+				Console.WriteLine("Available [option]s:");
+				Console.WriteLine();
+				foreach (FieldInfo field in fields)
+				{
+					Console.WriteLine("  --{0}", field.Name);
+				}
 			}
 
 			Console.WriteLine();
@@ -133,15 +164,31 @@ namespace Examples
 			catch (TException te)
 			{
 				if (te.InnerException == null)
-					throw;
+					throw te;
 
 				Exception innerException = te.InnerException;
 
 				var savestack = (ThreadStart)Delegate.CreateDelegate(typeof(ThreadStart), innerException, "InternalPreserveStackTrace", false, false);
 				if (savestack != null) savestack();
 
-				throw innerException; // -- now we can re-throw without trashing the stack
+				throw innerException; // -- now we can re-throw without trashing the stack /**/
+
+				// PreserveStackTrace(te);
+				// throw te;
 			}
+		}
+
+		static void PreserveStackTrace(Exception e)
+		{
+			var ctx = new StreamingContext(StreamingContextStates.CrossAppDomain);
+			var mgr = new ObjectManager(null, ctx);
+			var si = new SerializationInfo(e.GetType(), new FormatterConverter());
+
+			e.GetObjectData(si, ctx);
+			mgr.RegisterObject(e, 1, si); // prepare for SetObjectData
+			mgr.DoFixups(); // ObjectManager calls SetObjectData
+
+			// voila, e is unmodified save for _remoteStackTraceString
 		}
 
 	}

@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading;
 
 using ZeroMQ;
-using ZeroMQ.Devices;
 using ZeroMQ.Monitoring;
 
 namespace Examples
