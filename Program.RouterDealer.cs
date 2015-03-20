@@ -158,7 +158,7 @@ namespace Examples
 
 				while (!cancellus.IsCancellationRequested)
 				{
-					if (!socket.ReceiveMessage(ZSocketFlags.DontWait, ref request, out error))
+					if (!socket.ReceiveMessage(ref request, ZSocketFlags.DontWait, out error))
 					{
 						if (error == ZError.EAGAIN)
 						{
