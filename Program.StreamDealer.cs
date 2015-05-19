@@ -27,7 +27,7 @@ namespace Examples
 				args = new string[] { "World" };
 			}
 
-			if (!dict.ContainsKey("Frontend"))
+			if (!dict.ContainsKey("--frontend"))
 			{
 				Frontend = string.Format("tcp://{0}:8080", GetPublicIPs().FirstOrDefault());
 			}
