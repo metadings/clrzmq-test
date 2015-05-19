@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 
 using ZeroMQ;
+using ZeroMQ.Devices;
 using ZeroMQ.Monitoring;
 
 namespace Examples
@@ -158,7 +159,7 @@ namespace Examples
 
 				while (!cancellus.IsCancellationRequested)
 				{
-					if (!socket.ReceiveMessage(ZSocketFlags.DontWait, ref request, out error))
+					if (!socket.ReceiveMessage(ref request, ZSocketFlags.DontWait, out error))
 					{
 						if (error == ZError.EAGAIN)
 						{
